@@ -1,0 +1,17 @@
+on: [push]
+
+jobs:
+  test-otlp-output:
+    runs-on: ubuntu-latest
+    name: A job to test OTLP output
+    steps:
+      # To use this repository's private action,
+      # you must check out the repository
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Send data to OTLP backend
+        uses: codeboten/github-action-to-otlp
+        with:
+          endpoint: "ingest.lightstep.com:443"
+        env:
+          LS_ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
