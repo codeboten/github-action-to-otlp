@@ -12,7 +12,6 @@ import (
 	"github.com/google/go-github/v39/github"
 	"github.com/lightstep/otel-launcher-go/launcher"
 	"go.opentelemetry.io/otel"
-	"go.opentelemetry.io/otel/codes"
 	"go.opentelemetry.io/otel/trace"
 )
 
@@ -41,7 +40,9 @@ func getSteps(ctx context.Context, conf actionConfig) error {
 	}
 
 	ctx, workflowSpan := tracer.Start(ctx, *workflow.Name, trace.WithTimestamp(workflow.CreatedAt.Time))
-	jobs, _, err := client.Actions.ListWorkflowJobs(context.Background(), conf.owner, conf.repo, id, &github.ListWorkflowJobsOptions{})
+	defer workflowSpan.End(trace.WithTimestamp(workflow.UpdatedAt.Time))
+
+	jobs, _, err := client.Actions.ListWorkflowJobs(ctx, conf.owner, conf.repo, id, &github.ListWorkflowJobsOptions{})
 	if err != nil {
 		return err
 	}
@@ -57,7 +58,7 @@ func getSteps(ctx context.Context, conf actionConfig) error {
 		}
 		jobSpan.End(trace.WithTimestamp(job.CompletedAt.Time))
 	}
-	workflowSpan.End(trace.WithTimestamp(workflow.UpdatedAt.Time))
+
 	return nil
 }
 
@@ -102,17 +103,13 @@ func main() {
 		launcher.WithServiceName(conf.githubRepository),
 	)
 	defer lsOtel.Shutdown()
-	tracer := otel.Tracer(conf.githubRepository)
-	ctx, span := tracer.Start(context.Background(), conf.workflow)
-	defer span.End()
 
 	if err != nil {
 		log.Printf("%v", err)
 	}
 
-	err = getSteps(ctx, conf)
+	err = getSteps(context.Background(), conf)
 	if err != nil {
-		span.SetStatus(codes.Error, err.Error())
 		log.Println(err)
 	}
 }
