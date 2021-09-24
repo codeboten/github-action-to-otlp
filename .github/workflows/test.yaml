@@ -10,7 +10,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
       - name: Send data to OTLP backend
-        uses: codeboten/github-action-to-otlp
+        uses: codeboten/github-action-to-otlp@v1
         with:
           endpoint: "ingest.lightstep.com:443"
         env:
