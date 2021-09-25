@@ -5,13 +5,18 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"net/url"
 	"os"
 	"strconv"
 	"strings"
 
 	"github.com/google/go-github/v39/github"
-	"github.com/lightstep/otel-launcher-go/launcher"
+	"github.com/lightstep/otel-launcher-go/pipelines"
+	"go.opentelemetry.io/collector/translator/conventions"
 	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/sdk/resource"
+	semconv "go.opentelemetry.io/otel/semconv/v1.4.0"
 	"go.opentelemetry.io/otel/trace"
 )
 
@@ -21,6 +26,7 @@ type actionConfig struct {
 	owner            string
 	repo             string
 	runID            string
+	pipelineConfig   pipelines.PipelineConfig
 }
 
 // TODO: add attributes using https://docs.github.com/en/actions/learn-github-actions/environment-variables
@@ -71,7 +77,39 @@ func getSteps(ctx context.Context, conf actionConfig) error {
 	return nil
 }
 
+// Code inspired from the opentelemetry-go OTLP exporter
+//
+// https://github.com/open-telemetry/opentelemetry-go/blob/92551d3933c9c7ef5eaf4f93f876a5487d0024b9/exporters/otlp/otlpmetric/internal/otlpconfig/envconfig.go#L172
+func stringToHeader(value string) map[string]string {
+	headersPairs := strings.Split(value, ",")
+	headers := make(map[string]string)
+
+	for _, header := range headersPairs {
+		nameValue := strings.SplitN(header, "=", 2)
+		if len(nameValue) < 2 {
+			continue
+		}
+		name, err := url.QueryUnescape(nameValue[0])
+		if err != nil {
+			continue
+		}
+		trimmedName := strings.TrimSpace(name)
+		trimmedValue := strings.TrimSpace(nameValue[1])
+
+		headers[trimmedName] = trimmedValue
+	}
+
+	return headers
+}
+
 func parseConfig() (actionConfig, error) {
+	endpoint, ok := os.LookupEnv("OTEL_EXPORTER_OTLP_ENDPOINT")
+	if !ok || len(endpoint) == 0 {
+		return actionConfig{}, errors.New("invalid endpoint")
+	}
+
+	headers := stringToHeader(os.Getenv("OTEL_EXPORTER_OTLP_HEADERS"))
+
 	githubRepository, ok := os.LookupEnv("GITHUB_REPOSITORY")
 	if !ok {
 		return actionConfig{}, errors.New("missing variable: GITHUB_REPOSITORY")
@@ -91,12 +129,30 @@ func parseConfig() (actionConfig, error) {
 	if len(parts) < 2 {
 		return actionConfig{}, fmt.Errorf("invalid variable GITHUB_REPOSITORY: %s", githubRepository)
 	}
+
+	attributes := []attribute.KeyValue{
+		attribute.String(conventions.AttributeServiceName, githubRepository),
+	}
+
+	r, _ := resource.New(context.Background(),
+		resource.WithSchemaURL(semconv.SchemaURL),
+		resource.WithAttributes(attributes...),
+	)
+
+	insecure := false
 	conf := actionConfig{
 		workflow:         workflowName,
 		githubRepository: githubRepository,
 		owner:            parts[0],
 		repo:             parts[1],
 		runID:            runID,
+		pipelineConfig: pipelines.PipelineConfig{
+			Endpoint:    endpoint,
+			Insecure:    insecure, // TODO: provide config for this
+			Headers:     headers,
+			Propagators: []string{"tracecontext"}, // TODO: provide config for this
+			Resource:    r,
+		},
 	}
 
 	return conf, nil
@@ -108,10 +164,9 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	lsOtel := launcher.ConfigureOpentelemetry(
-		launcher.WithServiceName(conf.githubRepository),
-	)
-	defer lsOtel.Shutdown()
+
+	pipelineShutdown, err := pipelines.NewTracePipeline(conf.pipelineConfig)
+	defer pipelineShutdown()
 
 	if err != nil {
 		log.Printf("%v", err)

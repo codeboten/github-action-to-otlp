@@ -8,7 +8,14 @@ import (
 )
 
 func TestParseConfig(t *testing.T) {
+
 	_, err := parseConfig()
+	require.Error(t, err)
+	require.Contains(t, err.Error(), "invalid endpoint")
+
+	os.Setenv("OTEL_EXPORTER_OTLP_ENDPOINT", "endpoint:443")
+
+	_, err = parseConfig()
 	require.Error(t, err)
 	require.Contains(t, err.Error(), "missing variable: GITHUB_REPOSITORY")
 
@@ -16,9 +23,9 @@ func TestParseConfig(t *testing.T) {
 
 	_, err = parseConfig()
 	require.Error(t, err)
-	require.Contains(t, err.Error(), "missing variable: GITHUB_JOB")
+	require.Contains(t, err.Error(), "missing variable: GITHUB_RUN_ID")
 
-	os.Setenv("GITHUB_JOB", "123")
+	os.Setenv("GITHUB_RUN_ID", "123")
 
 	_, err = parseConfig()
 	require.Error(t, err)

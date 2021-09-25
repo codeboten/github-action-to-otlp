@@ -1,14 +1,15 @@
 name: "Github Action to OTLP"
 description: "Record job information as trace and transmit via OTLP"
 inputs:
-  endpoint: # endpoint of OTLP backend
+  endpoint:
     description: "Endpoint to send OTLP to"
     required: true
-  # headers: # endpoint of OTLP backend
-  #   description: "Headers to configure OTLP"
-  #   required: true
+  headers:
+    description: "Headers to configure gRPC metadata"
+    required: false
 runs:
   using: "docker"
   image: "Dockerfile"
   env:
-    OTEL_ENDPOINT: ${{ inputs.endpoint }}
+    OTEL_EXPORTER_OTLP_ENDPOINT: ${{ inputs.endpoint }}
+    OTEL_EXPORTER_OTLP_HEADERS: ${{ inputs.headers }}
