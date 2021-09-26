@@ -16,6 +16,8 @@ This action outputs Github Action workflows and jobs details to OTLP via gRPC.
 
 ## Example usage
 
+```
 uses: codeboten/github-action-to-otlp@v1
 with:
   endpoint: 'grpc.otlpendpoint.io:443'
+```
