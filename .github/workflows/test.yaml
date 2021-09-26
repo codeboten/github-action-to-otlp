@@ -13,4 +13,4 @@ jobs:
         uses: codeboten/github-action-to-otlp@v1
         with:
           endpoint: "ingest.lightstep.com:443"
-          headers: "lightstep-access-token:${{ secrets.ACCESS_TOKEN }}"
+          headers: "lightstep-access-token=${{ secrets.ACCESS_TOKEN }}"
