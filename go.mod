@@ -10,4 +10,5 @@ require (
 	go.opentelemetry.io/otel v1.0.0
 	go.opentelemetry.io/otel/sdk v1.0.0
 	go.opentelemetry.io/otel/trace v1.0.0
+	golang.org/x/oauth2 v0.0.0-20220630143837-2104d58473e0 // indirect
 )
