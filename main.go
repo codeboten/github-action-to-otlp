@@ -18,6 +18,7 @@ import (
 	"go.opentelemetry.io/otel/sdk/resource"
 	semconv "go.opentelemetry.io/otel/semconv/v1.4.0"
 	"go.opentelemetry.io/otel/trace"
+	"golang.org/x/oauth2"
 )
 
 type actionConfig struct {
@@ -36,6 +37,18 @@ type actionConfig struct {
 func getSteps(ctx context.Context, conf actionConfig) error {
 	tracer := otel.Tracer(conf.githubRepository)
 	client := github.NewClient(nil)
+
+	// login using the GITHUB_TOKEN coming from the jobs
+	// as per https://docs.github.com/en/actions/security-guides/automatic-token-authentication
+	githubToken, ok := os.LookupEnv("GITHUB_TOKEN")
+	if ok {
+		ts := oauth2.StaticTokenSource(
+			&oauth2.Token{AccessToken: githubToken},
+		)
+		tc := oauth2.NewClient(ctx, ts)
+		client = github.NewClient(tc)
+	}
+
 	id, err := strconv.ParseInt(conf.runID, 10, 64)
 	if err != nil {
 		return err

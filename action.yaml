@@ -7,9 +7,13 @@ inputs:
   headers:
     description: "Headers to configure gRPC metadata"
     required: false
+  repo-token:
+    description: 'The GITHUB_TOKEN secret'
+    required: false
 runs:
   using: "docker"
   image: "Dockerfile"
   env:
     OTEL_EXPORTER_OTLP_ENDPOINT: ${{ inputs.endpoint }}
     OTEL_EXPORTER_OTLP_HEADERS: ${{ inputs.headers }}
+    GITHUB_TOKEN: ${{ inputs.repo-token }}
