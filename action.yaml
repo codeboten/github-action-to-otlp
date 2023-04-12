@@ -11,8 +11,8 @@ inputs:
     description: 'The GITHUB_TOKEN secret'
     required: false
 runs:
-  using: "docker"
-  image: "Dockerfile"
+  using: 'node16'
+  main: 'index.js'
   env:
     OTEL_EXPORTER_OTLP_ENDPOINT: ${{ inputs.endpoint }}
     OTEL_EXPORTER_OTLP_HEADERS: ${{ inputs.headers }}
