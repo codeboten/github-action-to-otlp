@@ -8,9 +8,9 @@ jobs:
       # To use this repository's private action,
       # you must check out the repository
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Send data to OTLP backend
-        uses: codeboten/github-action-to-otlp@v1
+        uses: ./
         with:
           endpoint: "ingest.lightstep.com:443"
           headers: "lightstep-access-token=${{ secrets.ACCESS_TOKEN }}"
