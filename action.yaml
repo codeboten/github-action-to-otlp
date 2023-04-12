@@ -13,7 +13,3 @@ inputs:
 runs:
   using: 'node16'
   main: 'index.js'
-  env:
-    OTEL_EXPORTER_OTLP_ENDPOINT: ${{ inputs.endpoint }}
-    OTEL_EXPORTER_OTLP_HEADERS: ${{ inputs.headers }}
-    GITHUB_TOKEN: ${{ inputs.repo-token }}
