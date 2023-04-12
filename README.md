@@ -2,7 +2,7 @@
 
 *NOTE: This is still work in progress*
 
-This action outputs Github Action workflows and jobs details to OTLP via gRPC.
+This action outputs Github Action workflows and jobs details to OTLP via HTTP.
 
 ## Inputs
 
@@ -12,7 +12,7 @@ This action outputs Github Action workflows and jobs details to OTLP via gRPC.
 
 ## `headers`
 
-**Optional** Additional header configuration to pass in as metadata to the gRPC connection.
+**Optional** Additional header configuration to pass in as metadata to the HTTP connection.
 
 ## `repo-token`
 
@@ -23,7 +23,7 @@ This action outputs Github Action workflows and jobs details to OTLP via gRPC.
 ```
 uses: codeboten/github-action-to-otlp@v1
 with:
-  endpoint: 'grpc.otlpendpoint.io:443'
+  endpoint: 'https://otlpendpoint.io:443'
 ```
 
 ## Example usage in a private repository
@@ -31,6 +31,6 @@ with:
 ```
 uses: codeboten/github-action-to-otlp@v1
 with:
-  endpoint: 'grpc.otlpendpoint.io:443'
+  endpoint: 'https://otlpendpoint.io:443'
   repo-token: ${{ secrets.GITHUB_TOKEN }}
 ```
