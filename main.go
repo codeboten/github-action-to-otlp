@@ -46,6 +46,7 @@ func getSteps(ctx context.Context, conf actionConfig) error {
 			&oauth2.Token{AccessToken: githubToken},
 		)
 		tc := oauth2.NewClient(ctx, ts)
+		log.Println("using authenticated client")
 		client = github.NewClient(tc)
 	}
 
