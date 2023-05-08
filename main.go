@@ -37,6 +37,7 @@ type actionConfig struct {
 func getSteps(ctx context.Context, conf actionConfig) error {
 	tracer := otel.Tracer(conf.githubRepository)
 	client := github.NewClient(nil)
+	log.Println("using unauthenticated client")
 
 	// login using the GITHUB_TOKEN coming from the jobs
 	// as per https://docs.github.com/en/actions/security-guides/automatic-token-authentication
@@ -46,7 +47,7 @@ func getSteps(ctx context.Context, conf actionConfig) error {
 			&oauth2.Token{AccessToken: githubToken},
 		)
 		tc := oauth2.NewClient(ctx, ts)
-		log.Println("using authenticated client")
+		log.Println("authenticating client")
 		client = github.NewClient(tc)
 	}
 
