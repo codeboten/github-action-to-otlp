@@ -40,7 +40,7 @@ func getSteps(ctx context.Context, conf actionConfig) error {
 
 	// login using the GITHUB_TOKEN coming from the jobs
 	// as per https://docs.github.com/en/actions/security-guides/automatic-token-authentication
-	githubToken, ok := os.LookupEnv("GITHUB_TOKEN")
+	githubToken, ok := os.LookupEnv("REPO_TOKEN")
 	if ok {
 		ts := oauth2.StaticTokenSource(
 			&oauth2.Token{AccessToken: githubToken},
