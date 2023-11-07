@@ -39,10 +39,12 @@ async function run() {
     // https://help.github.com/en/actions/automating-your-workflow-with-github-actions/authenticating-with-the-github_token#about-the-github_token-secret
     const myToken = core.getInput('repo-token');
     const endpoint = core.getInput('endpoint');
-    const headers = parseHeaders(core.getInput('headers'))
+    // const headers = parseHeaders(core.getInput('headers'))
     const repository = github.context.repo
     const runID = github.context.runNumber
     const octokit = github.getOctokit(myToken)
+
+    console.log(`The event payload: ${repository} ${runID} ${endpoint}`);
 
 
     // You can also pass in additional options as a second parameter to getOctokit
