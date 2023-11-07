@@ -10,7 +10,10 @@
     "type": "git",
     "url": "git+https://github.com/codeboten/github-action-to-otlp.git"
   },
-  "keywords": ["opentelemetry", "gha"],
+  "keywords": [
+    "opentelemetry",
+    "gha"
+  ],
   "author": "Alex Boten",
   "license": "ISC",
   "bugs": {
@@ -23,9 +26,12 @@
   "dependencies": {
     "@actions/core": "^1.10.0",
     "@actions/github": "^5.1.1",
-    "@opentelemetry/api": "^1.2.0",
+    "@opentelemetry/api": "^1.6.0",
+    "@opentelemetry/auto-instrumentations-node": "^0.39.4",
     "@opentelemetry/exporter-trace-otlp-proto": "^0.33.0",
     "@opentelemetry/resources": "^1.7.0",
+    "@opentelemetry/sdk-metrics": "^1.18.0",
+    "@opentelemetry/sdk-node": "^0.45.0",
     "@opentelemetry/sdk-trace-base": "^1.7.0",
     "@opentelemetry/semantic-conventions": "^1.7.0"
   }
